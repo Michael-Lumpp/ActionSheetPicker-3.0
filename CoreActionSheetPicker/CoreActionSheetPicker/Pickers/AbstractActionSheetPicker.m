@@ -346,6 +346,14 @@ CG_INLINE BOOL isIPhone4() {
     [self dismissPicker];
 }
 
+  //Mike Added
+- (void)deallocate
+    {
+        //[self dismissPicker];
+        [self actionPickerCancel: self.target];
+        
+    }
+
 - (void)dismissPicker {
     if (self.actionSheet)
         [_actionSheet dismissWithClickedButtonIndex:0 animated:YES];

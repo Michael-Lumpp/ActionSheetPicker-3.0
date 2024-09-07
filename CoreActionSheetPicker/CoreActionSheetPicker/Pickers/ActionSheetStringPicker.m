@@ -40,6 +40,12 @@
     return picker;
 }
 
+
+ //Mike Added
+- (NSInteger)getSelectedIndex {
+    return self.selectedIndex;
+}
+
 - (instancetype)initWithTitle:(NSString *)title rows:(NSArray *)strings initialSelection:(NSInteger)index doneBlock:(ActionStringDoneBlock)doneBlock cancelBlock:(ActionStringCancelBlock)cancelBlockOrNil origin:(id)origin {
     self = [self initWithTitle:title rows:strings initialSelection:index target:nil successAction:nil cancelAction:nil origin:origin];
     if (self) {
