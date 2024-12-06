@@ -288,42 +288,44 @@ CG_INLINE BOOL isIPhone4() {
     } else {
         [self presentPickerForView:masterView];
     }
-
-	[self addTapDismissAction];
+    
+    if (![MyPopoverController canShowPopover]) {
+        [self addTapDismissAction];
+    }
 }
 
 - (void)addTapDismissAction {
-	if (!self.pickerView) {
-		NSAssert(_pickerView != NULL, @"Picker view failed to instantiate, perhaps you have invalid component data.");
-		return;
-	}
-	if (self.windowTapActionRetryCount > 10) {
-		NSAssert(NO, @"Failed to find Picker view's window. This may cause a memory leak.");
-	}
-	if (!self.pickerView.window) {
-		self.windowTapActionRetryCount += 1;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[self addTapDismissAction];
-		});
-		return;
-	}
-	
+    if (!self.pickerView) {
+        NSAssert(_pickerView != NULL, @"Picker view failed to instantiate, perhaps you have invalid component data.");
+        return;
+    }
+    if (self.windowTapActionRetryCount > 10) {
+        NSAssert(NO, @"Failed to find Picker view's window. This may cause a memory leak.");
+    }
+    if (!self.pickerView.window) {
+        self.windowTapActionRetryCount += 1;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self addTapDismissAction];
+        });
+        return;
+    }
+    
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnavailableInDeploymentTarget"
     {
-		SEL sel;
+        SEL sel;
         switch (self.tapDismissAction) {
             case TapActionDismiss:
                 // add tap dismiss action
-				sel = @selector(dismissPicker);
+                sel = @selector(dismissPicker);
                 break;
             case TapActionSuccess:
                 // add tap success action with dismissPicker
-				sel = @selector(actionPickerDone:);
+                sel = @selector(actionPickerDone:);
                 break;
             case TapActionCancel:
                 // add tap cancel action with dismissPicker
-				sel = @selector(actionPickerCancel:);
+                sel = @selector(actionPickerCancel:);
                 break;
         };
         if (sel) {
@@ -362,7 +364,7 @@ CG_INLINE BOOL isIPhone4() {
     self.actionSheet = nil;
     self.popOverViewController = nil;
     self.selfReference = nil;
-	[self.pickerView.window removeGestureRecognizer:self.windowTapAction];
+    [self.pickerView.window removeGestureRecognizer:self.windowTapAction];
 }
 
 #pragma mark - Custom Buttons
@@ -819,13 +821,28 @@ CG_INLINE BOOL isIPhone4() {
     }
 }
 
+#pragma mark UIAdaptivePresentationControllerDelegate
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
+    switch (self.tapDismissAction) {
+        case TapActionDismiss:
+            [self dismissPicker];
+            break;
+        case TapActionSuccess:
+            [self actionPickerDone:nil];
+            break;
+        case TapActionCancel:
+            [self actionPickerCancel:nil];
+            break;
+    };
+}
+
 #pragma mark UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-	if (IS_IPAD) {
-		return YES;
-	}
-	return NO;
+    if (IS_IPAD) {
+        return YES;
+    }
+    return NO;
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
